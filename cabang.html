@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600&amp;family=Roboto+Mono&amp;display=swap" rel="stylesheet">
+	<link href="assets/build/styles/ltr-core.css" rel="stylesheet">
+	<link href="assets/build/styles/ltr-vendor.css" rel="stylesheet">
+	<link href="assets/build/styles/custom.css" rel="stylesheet">
+	<link href="assets/images/favicon.ico" rel="shortcut icon" type="image/x-icon">
+	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<title>Catalog</title>
+</head>
+
+<body class="theme-light preload-active aside-active aside-mobile-minimized aside-desktop-maximized" id="fullscreen">
+	<div class="preload">
+		<div class="preload-dialog">
+			<div class="spinner-border text-primary preload-spinner"></div>
+		</div>
+	</div>
+	<div class="holder" id="app">
+		<div class="">
+			<div class="header">
+				<div class="header-holder header-holder-desktop">
+					<div class="header-container container-fluid">
+						<h4 class="header-title">Pilih Cabang</h4>
+					</div>
+				</div>
+				<div class="header-holder header-holder-mobile sticky-header bg-dark-tosca width-max-viewport" id="sticky-header-mobile">
+					<div class="header-container container-fluid">
+						<div class="header-wrap header-wrap-block justify-content-center px-3">
+							<h4 class="header-brand text-white">Pilih Cabang</h4>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="content">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-12">
+							<a :href="'home.html?id_cabang=' + sub.id + '&nama_cabang=' + sub.nama" v-for="(sub, i) in subs" :key="i" class="btn btn-lg btn-dark-tosca w-100 py-3 mx-2 my-2">{{ sub.nama }}</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="scrolltop">
+		<button class="btn btn-info btn-icon btn-lg">
+			<i class="fa fa-angle-up"></i>
+		</button>
+	</div>
+	<script type="text/javascript" src="assets/build/scripts/mandatory.js"></script>
+	<script type="text/javascript" src="assets/build/scripts/core.js"></script>
+	<script type="text/javascript" src="assets/build/scripts/vendor.js"></script>
+	<script type="text/javascript" src="assets/app/home.js"></script>
+	<script type="text/javascript" src="assets/js/helpers.js"></script>
+	<script type="text/javascript" src="assets/js/cabang.js"></script>
+</body>
+
+</html>

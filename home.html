@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600&amp;family=Roboto+Mono&amp;display=swap" rel="stylesheet">
+	<link href="assets/build/styles/ltr-core.css" rel="stylesheet">
+	<link href="assets/build/styles/ltr-vendor.css" rel="stylesheet">
+	<link href="assets/build/styles/custom.css" rel="stylesheet">
+	<link href="assets/images/favicon.ico" rel="shortcut icon" type="image/x-icon">
+	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<title>Catalog</title>
+</head>
+
+<body class="theme-light preload-active aside-active aside-mobile-minimized aside-desktop-maximized" id="fullscreen">
+	<div class="preload">
+		<div class="preload-dialog">
+			<div class="spinner-border text-primary preload-spinner"></div>
+		</div>
+	</div>
+	<div class="holder" id="app">
+		<div class="width-max-viewport" v-if="page == 'index'">
+			<div class="header">
+				<div class="header-holder header-holder-desktop">
+					<div class="header-container container-fluid">
+						<h4 class="header-title">Trading Catalog</h4>
+					</div>
+				</div>
+				<div class="header-holder header-holder-mobile sticky-header" id="sticky-header-mobile">
+					<div class="header-container container-fluid pb-1">
+						<div class="header-wrap header-wrap-block justify-content-start px-3">
+							<h4 class="header-brand text-tosca">Trading Catalog</h4>
+						</div>
+					</div>
+					<div class="header-container container-fluid pt-0">
+						<div class="header-wrap header-wrap-block justify-content-start px-3">
+							<div class="breadcrumb-icon">
+								<i class="fa fa-map-marker text-carrot"></i>
+							</div>
+							<span>{{ subName }}</span>
+						</div>
+					</div>
+					<div class="header-container container-fluid pt-0">
+						<div class="header-wrap header-wrap-block justify-content-between px-3">
+							<div class="input-group-icon input-group-lg widget15-compact">
+								<div class="input-group-prepend">
+									<i class="fa fa-search"></i>
+								</div>
+								<input type="text" v-model="search" @keyup="onSearchProduct" class="form-control form-control-tosca" placeholder="Cari Produk">
+							</div>
+							<div id="app">
+								<button class="btn btn-light" data-toggle="modal" data-target="#filter-modal">
+									<i class="fa fa-filter"></i>
+									<span class="ml-1">Filter <span>({{ countActiveFilter }})</span></span>
+								</button>
+							</div>
+						</div>
+					</div>
+					<div class="header-container container-fluid pt-0">
+						<div class="header-wrap header-wrap-block justify-content-between">
+							<div class="portlet-header portlet-header-bordered p-0">
+								<div class="portlet-addon">
+									<div class="nav nav-lines portlet-nav">
+										<a class="nav-item nav-link cursor-pointer" :class="activeTab == 'barang' ? 'active' : ''" data-toggle="tab" @click="filterJenisProduct('barang')">Produk Barang</a>
+										<a class="nav-item nav-link cursor-pointer" :class="activeTab == 'paket' ? 'active' : ''" data-toggle="tab" @click="filterJenisProduct('paket')">Produk Paket</a>
+										<a class="nav-item nav-link cursor-pointer" :class="activeTab == 'jasa' ? 'active' : ''" data-toggle="tab" @click="filterJenisProduct('jasa')">Produk Jasa</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="content pt-0">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-6 mb-3" v-for="(product, i) in products">
+							<div class="card" :key="i">
+								<div class="card-body">
+									<img :src="product.katalog_rincian[0].filename_fullpath" class="card-img" v-if="product.katalog_rincian.length == 1">
+									<div class="carousel slider-products" v-if="product.katalog_rincian.length > 1">
+										<div class="carousel-item" v-for="rincian in product.katalog_rincian">
+											<img :src="rincian.filename_fullpath" class="card-img">
+										</div>
+									</div>
+									<a @click="changePage('view', { id: product.id })"><h5 class="text-muted">{{ product.produk }}</h5></a>
+									<p class="card-text m-0">Per {{ product.satuan }}</p>
+									<h4 class="card-text text-carrot" v-show="product.status_harga">Rp {{ new Intl.NumberFormat('id').format(product.harga) }}</h4>
+								</div>
+							</div>
+						</div>
+						<div class="col-12 d-flex justify-content-center text-muted" v-if="pagination.page"><small>Sedang mengambil data...</small></div>
+						<div class="col-12 d-flex justify-content-center text-muted" v-else-if="products.length == 0"><small>Tidak ada katalog {{ activeTab }} untuk ditampilkan</small></div>
+						<div class="col-12 d-flex justify-content-center text-muted" v-else><small>Semua katalog {{ activeTab }} telah ditampilkan</small></div>
+					</div>
+				</div>
+			</div>
+			<div class="modal fade" id="filter-modal">
+				<div class="modal-dialog modal-dialog-scrollable" style="position: fixed; right: 0; width: 20rem;">
+					<div class="modal-content modal-borderless">
+						<div class="modal-header bg-dark-tosca">
+							<h5 class="modal-title text-white">Filter ({{ countActiveFilter }})</h5>
+							<button type="button" class="btn btn-label-danger btn-icon" data-dismiss="modal">
+								<i class="fa fa-times"></i>
+							</button>
+						</div>
+						<div class="modal-body bg-tosca pt-3">
+							<template v-if="activeTab == 'barang'">
+								<h6 class="text-white">Detail Barang</h6>
+								<div class="mb-2">
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="checkbox" id="kategori_barang" value="true" v-model="filters.category.isActive">
+										<label class="form-check-label text-white" for="kategori_barang">Kategori Barang</label>
+									</div>
+									<select class="form-control form-control form-control-bg-tosca" @click="getFilterCategory" v-model="filters.category.value">
+										<option value="" selected>Select</option>
+										<option v-for="option in filters.category.options" :value="option.id">{{ option.kategori_barang }}</option>
+									</select>
+								</div>
+
+								<div class="mb-2">
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="checkbox" id="jenis_barang" value="true" v-model="filters.variety.isActive">
+										<label class="form-check-label text-white" for="jenis_barang">Jenis Barang</label>
+									</div>
+									<select class="form-control form-control form-control-bg-tosca" @click="getFilterVariety" v-model="filters.variety.value">
+										<option value="" selected>Select</option>
+										<option v-for="option in filters.variety.options" :value="option.id">{{ option.jenis_barang }}</option>
+									</select>
+								</div>
+
+								<div class="mb-2">
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="checkbox" id="golongan_obat" value="true" v-model="filters.class.isActive">
+										<label class="form-check-label text-white" for="golongan_obat">Golongan Obat</label>
+									</div>
+									<select class="form-control form-control form-control-bg-tosca" @click="getFilterClass" v-model="filters.class.value">
+										<option value="" selected>Select</option>
+										<option v-for="option in filters.class.options" :value="option.id">{{ option.jenis_obat }}</option>
+									</select>
+								</div>
+
+								<div class="mb-2">
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="checkbox" id="produsen" value="true" v-model="filters.producer.isActive">
+										<label class="form-check-label text-white" for="produsen">Produsen</label>
+									</div>
+									<select class="form-control form-control form-control-bg-tosca" @click="getFilterProducer" v-model="filters.producer.value">
+										<option value="" selected>Select</option>
+										<option v-for="option in filters.producer.options" :value="option.id">{{ option.nama_produsen }}</option>
+									</select>
+								</div>
+
+								<div class="mb-2">
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="checkbox" id="rak" value="true" v-model="filters.rack.isActive">
+										<label class="form-check-label text-white" for="rak">Rak</label>
+									</div>
+									<select class="form-control form-control form-control-bg-tosca" @click="getFilterRack" v-model="filters.rack.value">
+										<option value="" selected>Select</option>
+										<option v-for="option in filters.rack.options" :value="option.id">{{ option.rak }}</option>
+									</select>
+								</div>
+
+								<div class="mb-2">
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="checkbox" id="sediaan_obat" value="true" v-model="filters.supply.isActive">
+										<label class="form-check-label text-white" for="sediaan_obat">Sediaan Obat</label>
+									</div>
+									<select class="form-control form-control form-control-bg-tosca" @click="getFilterSupply" v-model="filters.supply.value">
+										<option value="" selected>Select</option>
+										<option v-for="option in filters.supply.options" :value="option.id">{{ option.kategori_obat }}</option>
+									</select>
+								</div>
+
+								<div class="mb-3">
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="checkbox" id="fungsi_obat" value="true" v-model="filters.function.isActive">
+										<label class="form-check-label text-white" for="fungsi_obat">Fungsi Obat</label>
+									</div>
+									<select class="form-control form-control form-control-bg-tosca" @click="getFilterFunction" v-model="filters.function.value">
+										<option value="" selected>Select</option>
+										<option v-for="option in filters.function.options" :value="option.id">{{ option.fungsi_obat }}</option>
+									</select>
+								</div>
+							</template>
+
+							<template v-if="activeTab == 'jasa'">
+								<h6 class="text-white">Detail Jasa</h6>
+								<div class="mb-3">
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="checkbox" id="kategori_jasa" value="true" v-model="filters.service.isActive">
+										<label class="form-check-label text-white" for="kategori_jasa">Kategori Jasa</label>
+									</div>
+									<select class="form-control form-control form-control-bg-tosca" @click="getFilterService" v-model="filters.service.value">
+										<option value="" selected>Select</option>
+										<option v-for="option in filters.service.options" :value="option.id">{{ option.kategori_jasa }}</option>
+									</select>
+								</div>
+							</template>
+
+							<h6 class="text-white">Batas Harga</h6>
+							<div class="mb-3">
+								<div class="form-check form-check-inline">
+									<input class="form-check-input" type="checkbox" id="range_harga" value="true" v-model="filters.min_price.isActive">
+									<label class="form-check-label text-white" for="range_harga">Range Harga</label>
+								</div>
+								<div class="input-group mb-3">
+									<input type="number" class="form-control form-control-bg-tosca" placeholder="Min" v-model="filters.min_price.value">
+									<div class="input-group-append">
+										<span class="input-group-text addon-bg-tosca">
+											<i class="fa fa-minus"></i>
+										</span>
+									</div>
+									<input type="number" class="form-control form-control-bg-tosca" placeholder="Max" v-model="filters.max_price.value">
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer bg-tosca">
+							<button class="btn btn btn-outline-warning mr-2" @click="resetFilter" :disabled="countActiveFilter == 0">Atur Ulang</button>
+							<button class="btn btn-warning" @click="applyFilter" :disabled="countActiveFilter == 0">Pakai</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="width-max-viewport" v-if="page == 'view'">
+			<div class="header">
+				<div class="header-holder header-holder-mobile sticky-header" id="sticky-header-mobile">
+					<div class="header-container container-fluid">
+						<div class="header-wrap header-wrap-block justify-content-start px-3">
+							<a class="btn btn-lg btn-tosca" @click="changePage('index')">
+								<i class="fa fa-arrow-left text-white"></i>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="content">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-12">
+							<div class="card">
+								<div class="card-body">
+									<img :src="product.katalog_rincian[0].filename_fullpath" class="card-img" v-if="product?.katalog_rincian?.length == 1">
+									<div class="carousel slider-products" v-if="product?.katalog_rincian?.length > 1">
+										<div class="carousel-item" v-for="rincian in product.katalog_rincian">
+											<img :src="rincian.filename_fullpath" class="card-img">
+										</div>
+									</div>
+									<h4 class="text-tosca">{{ product.produk }}</h4>
+									<div class="row">
+										<div class="col-6" v-show="product.status_harga">
+											<h6 class="m-0">Harga</h6>
+											<h3 class="text-carrot">Rp {{ new Intl.NumberFormat('id').format(product.harga) }}</h3>
+										</div>
+										<div class="col-6" v-if="activeTab == 'barang'">
+											<h6 class="m-0">Satuan Produk</h6>
+											<select class="form-control form-control-lg form-control-tosca" v-model="satuanSelected" @change="changePriceBySatuan">
+												<option v-for="satuan in product.produk_satuan" :key="satuan.id" :value="satuan.id_satuan">{{ satuan.satuan }}</option>
+											</select>
+										</div>
+									</div>
+									<h6 class="mt-2">Deskripsi {{ activeTab }}</h6>
+									<p>{{ product.keterangan }}</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="scrolltop">
+		<button class="btn btn-info btn-icon btn-lg">
+			<i class="fa fa-angle-up"></i>
+		</button>
+	</div>
+
+	<script type="text/javascript" src="assets/build/scripts/mandatory.js"></script>
+	<script type="text/javascript" src="assets/build/scripts/core.js"></script>
+	<script type="text/javascript" src="assets/build/scripts/vendor.js"></script>
+	<script type="text/javascript" src="assets/app/home.js"></script>
+	<script type="text/javascript" src="assets/js/helpers.js"></script>
+	<script type="text/javascript" src="assets/js/home.js"></script>
+</body>
+
+</html>

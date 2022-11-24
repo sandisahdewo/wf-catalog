@@ -1,0 +1,120 @@
+.width-max-viewport {
+    width: 100vw;
+}
+
+.height-max-viewport {
+    height: 100vh;
+}
+
+.text-carrot {
+    color: #FC9A07 !important;
+}
+
+.btn-carrot {
+    color: white !important;
+    background: #FC9A07 !important;
+    border-color: #FC9A07 !important;
+}
+
+.btn-carrot.wide {
+    padding-left: 3rem !important;
+    padding-right: 3rem !important;
+}
+
+.text-tosca {
+    color: #048990 !important;
+}
+
+.btn-tosca {
+    color: white;
+    background: #048990 !important;
+    border-color: #048990 !important;
+}
+
+.btn-tosca:hover {
+    color: white;
+}
+
+.btn-dark-tosca {
+    color: white;
+    background: #048990 !important;
+    border-color: #048990 !important;
+}
+
+.btn-dark-tosca:hover {
+    color: white;
+}
+
+.bg-tosca {
+    background-color: #048990 !important;
+}
+
+.bg-dark-tosca {
+    background-color: #078087 !important;
+}
+
+select.form-control-tosca {
+    color: #048990 !important;
+    border-color: #048990 !important;
+}
+
+select.form-control-bg-tosca option:disabled,
+select.form-control-bg-tosca {
+    color: white !important;
+    border-color: white !important;
+    background-color: #048990 !important;
+}
+
+input.form-control-tosca:focus {
+    border-color: #048990 !important;
+}
+
+input.form-control-bg-tosca {
+    background-color: #048990 !important;
+}
+
+input.form-control-bg-tosca:focus {
+    border-color: white !important;
+}
+
+.addon-bg-tosca {
+    background-color: #048990 !important;
+    color: white !important;
+}
+
+input.form-control-bg-tosca,
+input.form-control-bg-tosca::placeholder {
+    color: white !important;
+}
+
+.portlet-nav.nav-lines .nav-link, .portlet-nav.nav-tabs .nav-link {
+    border-bottom-width: 2px !important;
+}
+
+.portlet-nav.nav-lines .nav-link.active {
+    color: #048990 !important;
+    border-bottom-color: #048990 !important;
+}
+
+.portlet-nav.nav-lines .nav-link.active:hover {
+    color: #048990 !important;
+}
+
+.portlet-nav.nav-lines .nav-link:hover {
+    color: #9d9ea0 !important;
+}
+
+.modal-borderless {
+    border-color: #048990 !important;
+    background: none !important;
+}
+
+.home-produk-img {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-top: 1rem;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
